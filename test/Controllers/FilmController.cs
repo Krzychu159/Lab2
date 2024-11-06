@@ -1,17 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using test.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace test.Controllers
 {
     public class FilmController : Controller
     {
         private static IList<Film> films = new List<Film>
- {
-new Film(){Id = 1, Name = "Film1", Description = "opis filmu1", Price=3},
-new Film(){Id = 2, Name = "Film2", Description = "opis filmu2", Price=5},
-new Film(){Id = 3, Name = "Film3", Description = "opis filmu3", Price=3},
- };
+        {
+            new Film() { Id = 1, Name = "Film1", Description = "opis filmu1", Price = 3 },
+            new Film() { Id = 2, Name = "Film2", Description = "opis filmu2", Price = 5 },
+            new Film() { Id = 3, Name = "Film3", Description = "opis filmu3", Price = 3 }
+        };
 
         // GET: FilmController
         public ActionResult Index()
@@ -38,50 +40,50 @@ new Film(){Id = 3, Name = "Film3", Description = "opis filmu3", Price=3},
         {
             film.Id = films.Count + 1;
             films.Add(film);
-                return RedirectToAction(nameof(Index));
-        
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: FilmController/Edit/5
         public ActionResult Edit(int id)
         {
-            return View();
+            var film = films.FirstOrDefault(x => x.Id == id);
+            return View(film);
         }
 
         // POST: FilmController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id, Film film)
         {
-            try
+            var existingFilm = films.FirstOrDefault(x => x.Id == id);
+            if (existingFilm != null)
             {
-                return RedirectToAction(nameof(Index));
+                existingFilm.Name = film.Name;
+                existingFilm.Description = film.Description;
+                existingFilm.Price = film.Price;
             }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: FilmController/Delete/5
         public ActionResult Delete(int id)
         {
-            return View();
+            var film = films.FirstOrDefault(x => x.Id == id);
+            return View(film);  
         }
 
         // POST: FilmController/Delete/5
-        [HttpPost]
+        [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
+        public ActionResult DeleteConfirmed(int id)
         {
-            try
+           
+            var film = films.FirstOrDefault(x => x.Id == id);
+            if (film != null)
             {
-                return RedirectToAction(nameof(Index));
+                films.Remove(film);
             }
-            catch
-            {
-                return View();
-            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }
